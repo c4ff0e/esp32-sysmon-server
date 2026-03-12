@@ -3,7 +3,7 @@ use all_smi::prelude::*;
 pub struct GpuMetrics {
     smi: AllSmi,
     pub gpu_name: String,
-    pub gpu_usage: f64,
+    pub gpu_usage: f32,
     pub gpu_temp: u32,
     pub gpu_memory_total: u64,
     pub gpu_memory_used: u64,
@@ -24,10 +24,10 @@ impl GpuMetrics {
             None => panic!("No GPU found. Crash for now")
         };
         let gpu_name = gpu.name.clone();
-        let gpu_usage = gpu.utilization;
+        let gpu_usage = gpu.utilization as f32;
         let gpu_temp = gpu.temperature;
-        let gpu_memory_total = gpu.total_memory;
-        let gpu_memory_used = gpu.used_memory;
+        let gpu_memory_total = gpu.total_memory as u64;
+        let gpu_memory_used = gpu.used_memory as u64;
         let gpu_freq = gpu.frequency;
 
         Self{
@@ -47,10 +47,10 @@ impl GpuMetrics {
             None => panic!("No GPU found. Crash for now")
         };
         self.gpu_name = gpu.name.clone();
-        self.gpu_usage = gpu.utilization;
+        self.gpu_usage = gpu.utilization as f32;
         self.gpu_temp = gpu.temperature;
-        self.gpu_memory_total = gpu.total_memory;
-        self.gpu_memory_used = gpu.used_memory;
+        self.gpu_memory_total = gpu.total_memory as u64;
+        self.gpu_memory_used = gpu.used_memory as u64;
         self.gpu_freq = gpu.frequency;
     }
 }
