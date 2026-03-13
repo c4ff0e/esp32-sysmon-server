@@ -6,7 +6,7 @@ pub struct MetricsData {
     pub cpu_name: String,
     pub cpu_frequency: u32,
     pub cpu_is_supported: bool,
-    
+
     pub total_ram: u64,
     pub used_ram: u64,
 
@@ -20,5 +20,5 @@ pub struct MetricsData {
 }
 
 pub fn serialize(data: &MetricsData) -> Result<Vec<u8>, postcard::Error> {
-    postcard::to_allocvec(data)
+    postcard::to_allocvec_cobs(data)
 }
