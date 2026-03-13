@@ -7,7 +7,7 @@ pub struct CpuRamMetrics {
     pub cpu_frequency: u32,
     pub total_ram: u64,
     pub used_ram: u64,
-    pub is_supported: bool,
+    pub cpu_is_supported: bool,
 }
 
 impl CpuRamMetrics {
@@ -35,7 +35,7 @@ impl CpuRamMetrics {
             cpu_frequency,
             total_ram,
             used_ram,
-            is_supported,
+            cpu_is_supported: is_supported,
         }
     }
 

@@ -1,4 +1,5 @@
 use serialport;
+use serialport::SerialPort;
 
 pub fn find_port() -> Option<String> {
     let ports = serialport::available_ports().unwrap_or_else(|_| Vec::new());
@@ -11,4 +12,8 @@ pub fn find_port() -> Option<String> {
     }
     println!("ESP32 not found.");
     None
+}
+
+pub fn send(port: &mut dyn SerialPort, serialized_data: &Vec<u8>) -> Result<(), std::io::Error> {
+    port.write_all(serialized_data)
 }

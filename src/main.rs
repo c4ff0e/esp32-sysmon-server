@@ -10,7 +10,8 @@ fn main() {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
-    let port ='_find_port: loop {
+    // returns serial port handle / error
+    let mut port  = '_find_port: loop { 
 
         // find correct port
         match send::find_port() {
@@ -18,7 +19,7 @@ fn main() {
 
                 // open found port
                 println!("Found ESP32 on port: {}", port_name);
-                let port_handle = serialport::new(&port_name, 9600).open();
+                let port_handle = serialport::new(&port_name, 115200).open();
 
                 // check if port actually opens
                 match port_handle {
@@ -58,12 +59,20 @@ fn main() {
         cpu_ram_metrics.refresh();
         gpu_metrics.refresh();
 
+        // crash if there is no metrics
+        if cpu_ram_metrics.cpu_is_supported == false && gpu_metrics.supported == false {
+            panic!("Fatal: No supported metrics available.");
+        }
+
         let metrics_data = serialize::MetricsData {
             cpu_usage: cpu_ram_metrics.cpu_usage,
             cpu_name: cpu_ram_metrics.cpu_name.clone(),
             cpu_frequency: cpu_ram_metrics.cpu_frequency,
+            cpu_is_supported: cpu_ram_metrics.cpu_is_supported,
+
             total_ram: cpu_ram_metrics.total_ram,
             used_ram: cpu_ram_metrics.used_ram,
+            
             gpu_name: gpu_metrics.gpu_name.clone(),
             gpu_usage: gpu_metrics.gpu_usage,
             gpu_temp: gpu_metrics.gpu_temp,
@@ -72,6 +81,16 @@ fn main() {
             gpu_freq: gpu_metrics.gpu_freq,
             gpu_supported: gpu_metrics.supported,
         };
+
         let serialized_data = serialize::serialize(&metrics_data).unwrap();
+        match send::send(&mut *port, &serialized_data) {
+            Ok(_) => {
+                println!("Data sent successfully. Data: {:?}", serialized_data);
+            }
+            Err(e) => {
+                println!("Failed to send data: {}", e);
+            }
+        }
+        std::thread::sleep(std::time::Duration::from_secs_f32(1.5)); // timeout
     }
 }

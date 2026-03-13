@@ -5,7 +5,8 @@ pub struct MetricsData {
     pub cpu_usage: f32,
     pub cpu_name: String,
     pub cpu_frequency: u32,
-
+    pub cpu_is_supported: bool,
+    
     pub total_ram: u64,
     pub used_ram: u64,
 
