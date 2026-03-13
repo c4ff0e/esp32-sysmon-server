@@ -21,7 +21,17 @@ impl GpuMetrics {
         let gpus = smi.get_gpu_info();
         let gpu = match gpus.first(){ // usually first is main
             Some(gpu) => gpu,
-            None => panic!("No GPU found. Crash for now")
+            None => {
+                return Self{
+                    smi,
+                    gpu_name: "UNSUPPORTED".to_string(),
+                    gpu_usage: 0.0,
+                    gpu_temp: 0,
+                    gpu_memory_total: 0,
+                    gpu_memory_used: 0,
+                    gpu_freq: 0
+                };
+            }
         };
         let gpu_name = gpu.name.clone();
         let gpu_usage = gpu.utilization as f32;
@@ -44,7 +54,14 @@ impl GpuMetrics {
         let gpus = self.smi.get_gpu_info();
         let gpu = match gpus.first(){
             Some(gpu) => gpu,
-            None => panic!("No GPU found. Crash for now")
+            None => { 
+                self.gpu_name = "UNSUPPORTED".to_string();
+                self.gpu_usage = 0.0;
+                self.gpu_temp = 0;
+                self.gpu_memory_total = 0;
+                self.gpu_memory_used = 0;
+                self.gpu_freq = 0;
+            return; }
         };
         self.gpu_name = gpu.name.clone();
         self.gpu_usage = gpu.utilization as f32;
