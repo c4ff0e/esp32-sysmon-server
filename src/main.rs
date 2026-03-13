@@ -10,16 +10,18 @@ fn main() {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
-    let mut port = loop {
+    let port ='_find_port: loop {
+
+        // find correct port
         match send::find_port() {
-            // find correct port
             Some(port_name) => {
+
                 // open found port
                 println!("Found ESP32 on port: {}", port_name);
                 let port_handle = serialport::new(&port_name, 9600).open();
 
+                // check if port actually opens
                 match port_handle {
-                    // check if port actually opens
                     Ok(port_handle) => {
                         println!("Successfully connected to ESP32.");
                         break port_handle;
@@ -52,7 +54,7 @@ fn main() {
         };
     };
 
-    loop {
+    '_main: loop {
         cpu_ram_metrics.refresh();
         gpu_metrics.refresh();
 
