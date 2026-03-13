@@ -1,4 +1,4 @@
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
 pub struct MetricsData {
@@ -15,8 +15,9 @@ pub struct MetricsData {
     pub gpu_memory_total: u64,
     pub gpu_memory_used: u64,
     pub gpu_freq: u32,
+    pub gpu_supported: bool,
 }
 
 pub fn serialize(data: &MetricsData) -> Result<Vec<u8>, postcard::Error> {
     postcard::to_allocvec(data)
-} 
+}

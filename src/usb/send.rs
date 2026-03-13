@@ -9,7 +9,6 @@ pub fn find_port() -> Option<String> {
             }
         }
     }
-    eprintln!("ESP32 not found.");
+    println!("ESP32 not found.");
     None
-    
 }

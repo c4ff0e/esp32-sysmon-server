@@ -8,28 +8,30 @@ pub struct GpuMetrics {
     pub gpu_memory_total: u64,
     pub gpu_memory_used: u64,
     pub gpu_freq: u32,
+    pub supported: bool,
 }
 
 impl GpuMetrics {
     pub fn new() -> Self {
-
-        let smi = match AllSmi::new(){
+        let smi = match AllSmi::new() {
             Ok(smi) => smi,
-            Err(e) => panic!("GPU Metrics failed to init!{}. Crash for now.",e) //TODO: you know
+            Err(e) => panic!("GPU Metrics failed to init!{}. Crash for now.", e), //TODO: you know
         };
 
         let gpus = smi.get_gpu_info();
-        let gpu = match gpus.first(){ // usually first is main
+        let gpu = match gpus.first() {
+            // usually first is main
             Some(gpu) => gpu,
             None => {
-                return Self{
+                return Self {
                     smi,
                     gpu_name: "UNSUPPORTED".to_string(),
                     gpu_usage: 0.0,
                     gpu_temp: 0,
                     gpu_memory_total: 0,
                     gpu_memory_used: 0,
-                    gpu_freq: 0
+                    gpu_freq: 0,
+                    supported: false,
                 };
             }
         };
@@ -40,28 +42,32 @@ impl GpuMetrics {
         let gpu_memory_used = gpu.used_memory as u64;
         let gpu_freq = gpu.frequency;
 
-        Self{
+        Self {
             smi,
             gpu_name,
             gpu_usage,
             gpu_temp,
             gpu_memory_total,
             gpu_memory_used,
-            gpu_freq
+            gpu_freq,
+            supported: true,
+
         }
     }
-    pub fn refresh(&mut self){
+    pub fn refresh(&mut self) {
         let gpus = self.smi.get_gpu_info();
-        let gpu = match gpus.first(){
+        let gpu = match gpus.first() {
             Some(gpu) => gpu,
-            None => { 
+            None => {
                 self.gpu_name = "UNSUPPORTED".to_string();
                 self.gpu_usage = 0.0;
                 self.gpu_temp = 0;
                 self.gpu_memory_total = 0;
                 self.gpu_memory_used = 0;
                 self.gpu_freq = 0;
-            return; }
+                self.supported = false;
+                return;
+            }
         };
         self.gpu_name = gpu.name.clone();
         self.gpu_usage = gpu.utilization as f32;
@@ -69,5 +75,6 @@ impl GpuMetrics {
         self.gpu_memory_total = gpu.total_memory as u64;
         self.gpu_memory_used = gpu.used_memory as u64;
         self.gpu_freq = gpu.frequency;
+        self.supported = true;
     }
 }

@@ -1,13 +1,57 @@
 mod metrics;
 mod usb;
+
 use crate::metrics::cpu_ram;
 use crate::metrics::gpu;
 
-use crate::usb::serialize;
 use crate::usb::send;
+use crate::usb::serialize;
 fn main() {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
+
+    let mut port = loop {
+        match send::find_port() {
+            // find correct port
+            Some(port_name) => {
+                // open found port
+                println!("Found ESP32 on port: {}", port_name);
+                let port_handle = serialport::new(&port_name, 9600).open();
+
+                match port_handle {
+                    // check if port actually opens
+                    Ok(port_handle) => {
+                        println!("Successfully connected to ESP32.");
+                        break port_handle;
+                    }
+
+                    Err(e) => {
+                        match e.kind() {
+                            serialport::ErrorKind::Io(std::io::ErrorKind::PermissionDenied) => {
+                                eprintln!(
+                                    "Permission denied for serial port {}. Check device access permissions.",
+                                    port_name
+                                );
+                            }
+                            serialport::ErrorKind::NoDevice => {
+                                eprintln!("Serial device {} is no longer available.", port_name);
+                            }
+                            _ => {
+                                eprintln!("Failed to open port {}: {}", port_name, e);
+                            }
+                        }
+                        std::thread::sleep(std::time::Duration::from_secs(5)); // wait before retrying
+                        continue;
+                    }
+                };
+            }
+            None => {
+                std::thread::sleep(std::time::Duration::from_secs(5)); // wait before retrying
+                continue;
+            }
+        };
+    };
+
     loop {
         cpu_ram_metrics.refresh();
         gpu_metrics.refresh();
@@ -24,14 +68,8 @@ fn main() {
             gpu_memory_total: gpu_metrics.gpu_memory_total,
             gpu_memory_used: gpu_metrics.gpu_memory_used,
             gpu_freq: gpu_metrics.gpu_freq,
+            gpu_supported: gpu_metrics.supported,
         };
         let serialized_data = serialize::serialize(&metrics_data).unwrap();
-        let port = match send::find_port() {
-            Some(port) => port,
-            None => continue,
-        };
-
-        println!("port: {}", &port)
     }
 }
-
