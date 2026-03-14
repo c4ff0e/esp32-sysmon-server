@@ -11,6 +11,7 @@ fn main() {
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
     // returns serial port handle / error
+    //TODO:REFACTOR
     let mut port  = '_find_port: loop { 
 
         // find correct port
