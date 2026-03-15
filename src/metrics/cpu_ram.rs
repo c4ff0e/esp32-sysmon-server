@@ -1,5 +1,5 @@
 use sysinfo::{CpuRefreshKind, MemoryRefreshKind, RefreshKind, System};
-use systemstat::{System as System2, Platform, };
+use systemstat::{Platform, System as System2};
 pub struct CpuRamMetrics {
     sys: System,
     sys2: System2,

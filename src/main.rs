@@ -1,4 +1,3 @@
-
 mod metrics;
 mod usb;
 
@@ -8,20 +7,25 @@ use crate::metrics::gpu;
 use crate::usb::send;
 use crate::usb::serialize;
 
-use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
 use std::thread;
 
-fn main(){
-    let stop = Arc::new(AtomicBool::new(true));
-    let worker_stop = Arc::clone(&stop);
+fn main() {
+    let run = Arc::new(AtomicBool::new(true));
+    let worker_run = Arc::clone(&run);
 
-    let main_thread = thread::spawn(move || {
-        worker(worker_stop)
-        });
+    let main_thread = thread::spawn(move || worker(worker_run));
     main_thread.join().unwrap();
 }
+// lifetime checker
+fn should_stop(run: &Arc<AtomicBool>) -> bool {
+    !run.load(Ordering::Relaxed)
+}
 
-fn worker(stop: Arc<AtomicBool>) {
+fn worker(run: Arc<AtomicBool>) {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
@@ -34,9 +38,10 @@ fn worker(stop: Arc<AtomicBool>) {
     };
 
     '_main: loop {
-        if !stop.load(Ordering::Relaxed) {                        
-            break;                                                                   
+        if should_stop(&run) {
+            break;
         }
+
         cpu_ram_metrics.refresh();
         gpu_metrics.refresh();
 
@@ -64,15 +69,19 @@ fn worker(stop: Arc<AtomicBool>) {
 
         let serialized_data = serialize::serialize(&metrics_data).unwrap();
         match send::send(&mut *port, &serialized_data) {
-            Ok(_) => {
-                
-            }
+            Ok(_) => {}
             Err(_) => {
                 println!("Error while sending data. Trying to reconnect...");
+                //the same code as before main loop. DRY broken :(
                 port = match send::connect() {
                     Ok(port_handle) => port_handle,
                     Err(e) => {
                         eprintln!("ERROR RECONNECTING TO PORT: {}", e);
+
+                        if should_stop(&run) {
+                            break;
+                        }
+
                         continue '_main;
                     }
                 };
