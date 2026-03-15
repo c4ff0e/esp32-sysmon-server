@@ -31,6 +31,7 @@ fn main() {
             cpu_name: cpu_ram_metrics.cpu_name.clone(),
             cpu_frequency: cpu_ram_metrics.cpu_frequency,
             cpu_is_supported: cpu_ram_metrics.cpu_is_supported,
+            cpu_temp: cpu_ram_metrics.cpu_temp,
 
             total_ram: cpu_ram_metrics.total_ram,
             used_ram: cpu_ram_metrics.used_ram,
@@ -47,7 +48,7 @@ fn main() {
         let serialized_data = serialize::serialize(&metrics_data).unwrap();
         match send::send(&mut *port, &serialized_data) {
             Ok(_) => {
-                println!("Data sent successfully. Data: {:?}", serialized_data);
+                
             }
             Err(_) => {
                 println!("Error while sending data. Trying to reconnect...");
