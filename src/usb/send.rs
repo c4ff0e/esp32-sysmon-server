@@ -10,10 +10,11 @@ pub fn find_port() -> serialport::Result<String> {
             }
         };
         for port in ports {
-            if let serialport::SerialPortType::UsbPort(info) = port.port_type {
-                if info.vid == 0x303A && info.pid == 0x3001 {
-                    return Ok(port.port_name);
-                }
+            if let serialport::SerialPortType::UsbPort(info) = port.port_type
+                && info.vid == 0x303A
+                && info.pid == 0x3001
+            {
+                return Ok(port.port_name);
             }
         }
         println!("No port found. Retrying...");
@@ -25,7 +26,7 @@ pub fn open_port(port_name: &str) -> serialport::Result<Box<dyn SerialPort>> {
     serialport::new(port_name, 115200).open()
 }
 
-pub fn send(port: &mut dyn SerialPort, serialized_data: &Vec<u8>) -> Result<(), std::io::Error> {
+pub fn send(port: &mut dyn SerialPort, serialized_data: &[u8]) -> Result<(), std::io::Error> {
     port.write_all(serialized_data)
 }
 
@@ -33,14 +34,12 @@ pub fn connect() -> serialport::Result<Box<dyn SerialPort>> {
     let port_name = match find_port() {
         Ok(name) => name,
         Err(e) => {
-            eprintln!("PORT FINDING TESTING: {:?}", e);
             return Err(e);
         }
     };
-    let port = match open_port(&port_name){
-        Ok(port_handle) => { port_handle }
+    let port = match open_port(&port_name) {
+        Ok(port_handle) => port_handle,
         Err(e) => {
-            eprintln!("ERROR OPENING PORT: {}", e);
             return Err(e);
         }
     };

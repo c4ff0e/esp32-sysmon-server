@@ -24,8 +24,8 @@ impl CpuRamMetrics {
         let cpu_name = sys.cpus()[0].brand().to_string();
         let cpu_frequency = sys.cpus()[0].frequency() as u32;
 
-        let total_ram = sys.total_memory() as u64;
-        let used_ram = sys.used_memory() as u64;
+        let total_ram = sys.total_memory();
+        let used_ram = sys.used_memory();
 
         let is_supported = sysinfo::IS_SUPPORTED_SYSTEM;
         Self {
@@ -44,8 +44,8 @@ impl CpuRamMetrics {
         self.update_cpu_usage();
 
         self.sys.refresh_memory();
-        self.total_ram = self.sys.total_memory() as u64;
-        self.used_ram = self.sys.used_memory() as u64;
+        self.total_ram = self.sys.total_memory();
+        self.used_ram = self.sys.used_memory();
     }
     fn update_cpu_usage(&mut self) {
         self.sys.refresh_cpu_all();
@@ -54,7 +54,7 @@ impl CpuRamMetrics {
         let mut sum = 0.0;
         let mut count = 0;
         for cpu in self.sys.cpus() {
-            sum += cpu.cpu_usage() as f32;
+            sum += cpu.cpu_usage();
             count += 1;
         }
         self.cpu_usage = sum / count as f32;

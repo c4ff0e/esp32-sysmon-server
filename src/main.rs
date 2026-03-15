@@ -12,13 +12,13 @@ fn main() {
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
     let mut port = match send::connect() {
-        Ok(port_handle) => { port_handle }
+        Ok(port_handle) => port_handle,
         Err(e) => {
             eprintln!("ERROR CONNECTING TO PORT: {}", e);
             panic!()
         }
     };
-    
+
     '_main: loop {
         cpu_ram_metrics.refresh();
         gpu_metrics.refresh();
@@ -52,13 +52,12 @@ fn main() {
             Err(_) => {
                 println!("Error while sending data. Trying to reconnect...");
                 port = match send::connect() {
-                    Ok(port_handle) => { port_handle }
+                    Ok(port_handle) => port_handle,
                     Err(e) => {
                         eprintln!("ERROR RECONNECTING TO PORT: {}", e);
                         continue '_main;
                     }
                 };
-
             }
         }
         std::thread::sleep(std::time::Duration::from_secs_f32(1.5)); // timeout

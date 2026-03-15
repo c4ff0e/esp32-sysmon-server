@@ -71,8 +71,8 @@ impl GpuMetrics {
         self.gpu_name = gpu.name.clone();
         self.gpu_usage = gpu.utilization as f32;
         self.gpu_temp = gpu.temperature;
-        self.gpu_memory_total = gpu.total_memory as u64;
-        self.gpu_memory_used = gpu.used_memory as u64;
+        self.gpu_memory_total = gpu.total_memory;
+        self.gpu_memory_used = gpu.used_memory;
         self.gpu_freq = gpu.frequency;
         self.supported = true;
     }
