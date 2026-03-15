@@ -6,64 +6,25 @@ use crate::metrics::gpu;
 
 use crate::usb::send;
 use crate::usb::serialize;
+
 fn main() {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
-    // returns serial port handle / error
-    //TODO:REFACTOR
-    let mut port  = '_find_port: loop { 
-
-        // find correct port
-        match send::find_port() {
-            Some(port_name) => {
-
-                // open found port
-                println!("Found ESP32 on port: {}", port_name);
-                let port_handle = serialport::new(&port_name, 115200).open();
-
-                // check if port actually opens
-                match port_handle {
-                    Ok(port_handle) => {
-                        println!("Successfully connected to ESP32.");
-                        break port_handle;
-                    }
-
-                    Err(e) => {
-                        match e.kind() {
-                            serialport::ErrorKind::Io(std::io::ErrorKind::PermissionDenied) => {
-                                eprintln!(
-                                    "Permission denied for serial port {}. Check device access permissions.",
-                                    port_name
-                                );
-                            }
-                            serialport::ErrorKind::NoDevice => {
-                                eprintln!("Serial device {} is no longer available.", port_name);
-                            }
-                            _ => {
-                                eprintln!("Failed to open port {}: {}", port_name, e);
-                            }
-                        }
-                        std::thread::sleep(std::time::Duration::from_secs(5)); // wait before retrying
-                        continue;
-                    }
-                };
-            }
-            None => {
-                std::thread::sleep(std::time::Duration::from_secs(5)); // wait before retrying
-                continue;
-            }
-        };
+    let mut port = match send::connect() {
+        Ok(port_handle) => { port_handle }
+        Err(e) => {
+            eprintln!("ERROR CONNECTING TO PORT: {}", e);
+            panic!()
+        }
     };
-
+    
     '_main: loop {
         cpu_ram_metrics.refresh();
         gpu_metrics.refresh();
 
-        // crash if there is no metrics
-        if cpu_ram_metrics.cpu_is_supported == false && gpu_metrics.supported == false {
-            panic!("Fatal: No supported metrics available.");
-        }
+        // there used to be a crash if there is no metrics available;
+        // however, it is better to display this information on a screen then sliently(?) stop working
 
         let metrics_data = serialize::MetricsData {
             cpu_usage: cpu_ram_metrics.cpu_usage,
@@ -73,7 +34,7 @@ fn main() {
 
             total_ram: cpu_ram_metrics.total_ram,
             used_ram: cpu_ram_metrics.used_ram,
-            
+
             gpu_name: gpu_metrics.gpu_name.clone(),
             gpu_usage: gpu_metrics.gpu_usage,
             gpu_temp: gpu_metrics.gpu_temp,
@@ -88,8 +49,16 @@ fn main() {
             Ok(_) => {
                 println!("Data sent successfully. Data: {:?}", serialized_data);
             }
-            Err(e) => {
-                println!("Failed to send data: {}", e);
+            Err(_) => {
+                println!("Error while sending data. Trying to reconnect...");
+                port = match send::connect() {
+                    Ok(port_handle) => { port_handle }
+                    Err(e) => {
+                        eprintln!("ERROR RECONNECTING TO PORT: {}", e);
+                        continue '_main;
+                    }
+                };
+
             }
         }
         std::thread::sleep(std::time::Duration::from_secs_f32(1.5)); // timeout

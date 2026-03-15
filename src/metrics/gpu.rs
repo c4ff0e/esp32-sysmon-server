@@ -51,7 +51,6 @@ impl GpuMetrics {
             gpu_memory_used,
             gpu_freq,
             supported: true,
-
         }
     }
     pub fn refresh(&mut self) {
