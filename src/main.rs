@@ -1,3 +1,4 @@
+
 mod metrics;
 mod usb;
 
@@ -7,7 +8,20 @@ use crate::metrics::gpu;
 use crate::usb::send;
 use crate::usb::serialize;
 
-fn main() {
+use std::sync::{Arc, atomic::{AtomicBool, Ordering}};
+use std::thread;
+
+fn main(){
+    let stop = Arc::new(AtomicBool::new(true));
+    let worker_stop = Arc::clone(&stop);
+
+    let main_thread = thread::spawn(move || {
+        worker(worker_stop)
+        });
+    main_thread.join().unwrap();
+}
+
+fn worker(stop: Arc<AtomicBool>) {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
@@ -20,6 +34,9 @@ fn main() {
     };
 
     '_main: loop {
+        if !stop.load(Ordering::Relaxed) {                        
+            break;                                                                   
+        }
         cpu_ram_metrics.refresh();
         gpu_metrics.refresh();
 
