@@ -8,6 +8,7 @@ use crate::metrics::gpu;
 use crate::usb::send;
 use crate::usb::serialize;
 
+#[cfg(target_os = "windows")]
 use crate::tray::windows;
 
 use std::sync::{
@@ -20,6 +21,8 @@ fn main() {
     let run = Arc::new(AtomicBool::new(true));
     let worker_run = Arc::clone(&run);
 
+    // tray icon on windows
+    #[cfg(target_os = "windows")]
     let tray = match windows::build() {
         Ok(tray) => tray,
         Err(e) => {
