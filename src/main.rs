@@ -1,11 +1,14 @@
 mod metrics;
 mod usb;
+mod tray;
 
 use crate::metrics::cpu_ram;
 use crate::metrics::gpu;
 
 use crate::usb::send;
 use crate::usb::serialize;
+
+use crate::tray::windows;
 
 use std::sync::{
     Arc,
@@ -17,8 +20,17 @@ fn main() {
     let run = Arc::new(AtomicBool::new(true));
     let worker_run = Arc::clone(&run);
 
+    let tray = match windows::build() {
+        Ok(tray) => tray,
+        Err(e) => {
+            eprintln!("tray build error: {}", e);
+            return;
+        }
+    };
+
     let main_thread = thread::spawn(move || worker(worker_run));
     main_thread.join().unwrap();
+
 }
 // lifetime checker
 fn should_stop(run: &Arc<AtomicBool>) -> bool {

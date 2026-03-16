@@ -6,6 +6,9 @@ Part of esp32-sysmon-* project; desktop server to send the data to ESP32
 
 2) cargo run
 
+## Linux
+
+
 ## Troubleshooting
 
 *Permission denied for serial port **[Serial port name]**. Check device access permissions.*
