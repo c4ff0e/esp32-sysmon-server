@@ -1,3 +1,4 @@
+use log::info;
 use serialport::SerialPort;
 use serialport::{self};
 use std::sync::{Arc, atomic::AtomicBool};
@@ -23,12 +24,13 @@ pub fn find_port(run: &Arc<AtomicBool>) -> serialport::Result<String> {
                 return Ok(port.port_name);
             }
         }
-        println!("No device found. Retrying...");
+        info!("No device found. Retrying...");
         std::thread::sleep(std::time::Duration::from_secs(5));
     }
 }
 
 pub fn open_port(port_name: &str) -> serialport::Result<Box<dyn SerialPort>> {
+    info!("Found device: {}. ", port_name);
     serialport::new(port_name, 115200).open()
 }
 

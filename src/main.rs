@@ -67,8 +67,8 @@ fn worker(run: Arc<AtomicBool>) {
     let mut port = match send::connect(&run) {
         Ok(port_handle) => port_handle,
         Err(e) => {
-            eprintln!("ERROR CONNECTING TO PORT: {}", e);
-            panic!()
+            info!("ERROR CONNECTING TO PORT: {}", e);
+            return;
         }
     };
 
@@ -106,12 +106,12 @@ fn worker(run: Arc<AtomicBool>) {
         match send::send(&mut *port, &serialized_data) {
             Ok(_) => {}
             Err(_) => {
-                println!("Error while sending data. Trying to reconnect...");
+                info!("Error while sending data. Trying to reconnect...");
                 //the same code as before main loop. DRY broken :(
                 port = match send::connect(&run) {
                     Ok(port_handle) => port_handle,
                     Err(e) => {
-                        eprintln!("ERROR RECONNECTING TO PORT: {}", e);
+                        info!("ERROR RECONNECTING TO PORT: {}", e);
 
                         if should_stop(&run) {
                             break;

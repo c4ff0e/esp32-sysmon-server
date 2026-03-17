@@ -26,7 +26,17 @@ pub fn create_logger(log_file: &PathBuf) {
             panic!("Failed to create log file: {}", e);
         }
     };
-    match WriteLogger::init(LevelFilter::Info, Config::default(), log_file) {
+    let mut config_builder = ConfigBuilder::new();
+    config_builder
+        .set_time_level(LevelFilter::Info)
+        .set_time_format_custom(format_description!(
+            "[year]-[month]-[day] [hour]:[minute]:[second]"
+        ));
+
+    let _ = config_builder.set_time_offset_to_local();
+
+    let config = config_builder.build();
+    match WriteLogger::init(LevelFilter::Info, config, log_file) {
         Ok(()) => {}
         Err(e) => {
             panic!("Failed to create logger: {}", e)

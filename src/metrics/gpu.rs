@@ -1,7 +1,8 @@
 use all_smi::prelude::*;
+use log::info;
 
 pub struct GpuMetrics {
-    smi: AllSmi,
+    smi: Option<AllSmi>,
     pub gpu_name: String,
     pub gpu_usage: f32,
     pub gpu_temp: u32,
@@ -14,8 +15,27 @@ pub struct GpuMetrics {
 impl GpuMetrics {
     pub fn new() -> Self {
         let smi = match AllSmi::new() {
-            Ok(smi) => smi,
-            Err(e) => panic!("GPU Metrics failed to init!{}. Crash for now.", e), //TODO: you know
+            Ok(smi) => Some(smi),
+            Err(_) => {
+                info!("Failed to initialize GPU metrics backend.");
+                None
+            }
+        };
+
+        let smi = match smi {
+            Some(smi) => smi,
+            None => {
+                return Self {
+                    smi: None,
+                    gpu_name: "UNSUPPORTED".to_string(),
+                    gpu_usage: 0.0,
+                    gpu_temp: 0,
+                    gpu_memory_total: 0,
+                    gpu_memory_used: 0,
+                    gpu_freq: 0,
+                    supported: false,
+                };
+            }
         };
 
         let gpus = smi.get_gpu_info();
@@ -24,7 +44,7 @@ impl GpuMetrics {
             Some(gpu) => gpu,
             None => {
                 return Self {
-                    smi,
+                    smi: None,
                     gpu_name: "UNSUPPORTED".to_string(),
                     gpu_usage: 0.0,
                     gpu_temp: 0,
@@ -43,7 +63,7 @@ impl GpuMetrics {
         let gpu_freq = gpu.frequency;
 
         Self {
-            smi,
+            smi: Some(smi),
             gpu_name,
             gpu_usage,
             gpu_temp,
@@ -54,7 +74,20 @@ impl GpuMetrics {
         }
     }
     pub fn refresh(&mut self) {
-        let gpus = self.smi.get_gpu_info();
+        let smi = match &self.smi {
+            Some(smi) => smi,
+            None => {
+                self.gpu_name = "UNSUPPORTED".to_string();
+                self.gpu_usage = 0.0;
+                self.gpu_temp = 0;
+                self.gpu_memory_total = 0;
+                self.gpu_memory_used = 0;
+                self.gpu_freq = 0;
+                self.supported = false;
+                return;
+            }
+        };
+        let gpus = smi.get_gpu_info();
         let gpu = match gpus.first() {
             Some(gpu) => gpu,
             None => {
