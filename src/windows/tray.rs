@@ -1,6 +1,10 @@
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
+use std::{
+    path::PathBuf,
+    process::Command,
+    sync::{
+        Arc,
+        atomic::{AtomicBool, Ordering},
+    },
 };
 
 use image;
@@ -47,7 +51,7 @@ pub fn build_tray() -> Result<TrayIcon> {
         .build()
 }
 
-pub fn run_event_loop(run: Arc<AtomicBool>) {
+pub fn run_event_loop(run: Arc<AtomicBool>, log_file: &PathBuf) {
     unsafe {
         let mut msg = MSG::default();
         while GetMessageW(&mut msg, None, 0, 0).into() {
@@ -59,7 +63,11 @@ pub fn run_event_loop(run: Arc<AtomicBool>) {
                         run.store(false, Ordering::Relaxed);
                         PostQuitMessage(0);
                     }
-                    "logs" => { //TODO:
+                    "logs" => {
+                        Command::new("notepad")
+                            .arg(&log_file)
+                            .spawn()
+                            .expect("Failed to open log file");
                     }
                     _ => {}
                 }

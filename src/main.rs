@@ -12,8 +12,8 @@ use std::thread;
 use crate::metrics::cpu_ram;
 use crate::metrics::gpu;
 
-use log::info;
 use crate::common::logs;
+use log::info;
 
 use crate::usb::send;
 use crate::usb::serialize;
@@ -31,12 +31,12 @@ fn main() {
     let log_dir = match logs::log_dir() {
         Ok(log_dir) => log_dir,
         Err(e) => {
-            panic!("Failed to get project directory: {}",e);
+            panic!("Failed to get project directory: {}", e);
         }
     };
     println!("Logs directory: {}", log_dir.display());
     let log_file = log_dir.join("server.log");
-    logs::create_logger(log_file);
+    logs::create_logger(&log_file);
 
     info!("Logger ok");
     let run = Arc::new(AtomicBool::new(true));
@@ -53,8 +53,9 @@ fn main() {
     };
 
     let worker_thread = thread::spawn(move || worker(worker_run));
+
     #[cfg(target_os = "windows")]
-    windows::tray::run_event_loop(Arc::clone(&run));
+    windows::tray::run_event_loop(Arc::clone(&run), &log_file);
 
     worker_thread.join().unwrap();
 }
