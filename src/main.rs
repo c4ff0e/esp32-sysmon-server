@@ -12,6 +12,7 @@ use std::thread;
 use crate::metrics::cpu_ram;
 use crate::metrics::gpu;
 
+use log::info;
 use crate::common::logs;
 
 use crate::usb::send;
@@ -26,6 +27,7 @@ fn should_stop(run: &Arc<AtomicBool>) -> bool {
 }
 
 fn main() {
+    //creating logger
     let log_dir = match logs::log_dir() {
         Ok(log_dir) => log_dir,
         Err(e) => {
@@ -33,8 +35,10 @@ fn main() {
         }
     };
     println!("Logs directory: {}", log_dir.display());
+    let log_file = log_dir.join("server.log");
+    logs::create_logger(log_file);
 
-
+    info!("Logger ok");
     let run = Arc::new(AtomicBool::new(true));
     let worker_run = Arc::clone(&run);
 

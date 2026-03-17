@@ -1292,6 +1292,7 @@ dependencies = [
  "all-smi",
  "directories",
  "image",
+ "log",
  "postcard",
  "serde",
  "serialport",

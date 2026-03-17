@@ -1,5 +1,5 @@
 use simplelog::*;
-use std::{fs::{File, create_dir_all}, path::PathBuf};
+use std::{fs::{File, create_dir_all}, path::{PathBuf}};
 
 use directories::{ProjectDirs};
 
@@ -20,5 +20,19 @@ pub fn log_dir() -> Result<PathBuf, std::io::Error> {
         }
     }
 }
+pub fn create_logger(log_file:PathBuf){
+    let log_file = match File::create(log_file){
+        Ok(log_file)=>log_file,
+        Err(e)=>{
+            panic!("Failed to create log file: {}",e);
+        }
+    };
+    match WriteLogger::init(LevelFilter::Info, Config::default(),log_file ) {
+        Ok(()) => {}
+        Err(e) => {
+            panic!("Failed to create logger: {}",e)
+        }
+    };
+}
 
-//WriteLogger::init(LevelFilter::Info, Config::default(), File::create(log_dir).unwrap());
+
