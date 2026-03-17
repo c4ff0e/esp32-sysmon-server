@@ -1,5 +1,5 @@
 mod metrics;
-mod tray;
+mod windows;
 mod usb;
 
 use crate::metrics::cpu_ram;
@@ -9,7 +9,7 @@ use crate::usb::send;
 use crate::usb::serialize;
 
 #[cfg(target_os = "windows")]
-use crate::tray::windows;
+use crate::windows::tray;
 
 use std::sync::{
     Arc,
@@ -23,7 +23,7 @@ fn main() {
 
     // tray icon on windows
     #[cfg(target_os = "windows")]
-    let _tray = match windows::build_tray() {
+    let _tray = match tray::build_tray() {
         Ok(tray) => tray,
         Err(e) => {
             eprintln!("tray build error: {}", e);

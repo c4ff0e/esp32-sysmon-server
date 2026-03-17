@@ -5,7 +5,7 @@ use tray_icon::{
 };
 
 fn load_icon() -> Icon {
-    let bytes = include_bytes!("icon16.ico");
+    let bytes = include_bytes!("icon64.ico");
     let image = image::load_from_memory(bytes).unwrap().to_rgba8();
     let (width, height) = image.dimensions();
     Icon::from_rgba(image.into_raw(), width, height).unwrap() //too lazy to properly check it rn
