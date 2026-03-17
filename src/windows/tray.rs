@@ -9,9 +9,9 @@ use tray_icon::{
     menu::{Menu, MenuItem, PredefinedMenuItem},
 };
 
-use ::windows::Win32::UI::WindowsAndMessaging::{                                 
-    DispatchMessageW, GetMessageW, MSG, TranslateMessage, PostQuitMessage                      
-};  
+use ::windows::Win32::UI::WindowsAndMessaging::{
+    DispatchMessageW, GetMessageW, MSG, PostQuitMessage, TranslateMessage,
+};
 
 fn load_icon() -> Icon {
     let bytes = include_bytes!("icon64.ico");
@@ -47,14 +47,14 @@ pub fn build_tray() -> Result<TrayIcon> {
         .build()
 }
 
-pub fn run_event_loop(run:Arc<AtomicBool>) {                                                                                                                                             
-    unsafe {                                                                         
-        let mut msg = MSG::default();                                                
-        while GetMessageW(&mut msg, None, 0, 0).into() {                             
-            TranslateMessage(&msg);                                                  
-            DispatchMessageW(&msg);                                                  
-            if let Ok(event) = tray_icon::menu::MenuEvent::receiver().try_recv() {   
-                match event.id.as_ref(){
+pub fn run_event_loop(run: Arc<AtomicBool>) {
+    unsafe {
+        let mut msg = MSG::default();
+        while GetMessageW(&mut msg, None, 0, 0).into() {
+            let _ = TranslateMessage(&msg);
+            DispatchMessageW(&msg);
+            if let Ok(event) = tray_icon::menu::MenuEvent::receiver().try_recv() {
+                match event.id.as_ref() {
                     "quit" => {
                         run.store(false, Ordering::Relaxed);
                         PostQuitMessage(0);
@@ -63,7 +63,7 @@ pub fn run_event_loop(run:Arc<AtomicBool>) {
                     }
                     _ => {}
                 }
-            }                                                                        
-        }                                                                            
-    }                                                                                
-} 
+            }
+        }
+    }
+}

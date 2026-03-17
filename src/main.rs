@@ -1,6 +1,7 @@
+mod common;
 mod metrics;
-mod windows;
 mod usb;
+mod windows;
 
 use std::sync::{
     Arc,
@@ -10,6 +11,8 @@ use std::thread;
 
 use crate::metrics::cpu_ram;
 use crate::metrics::gpu;
+
+use crate::common::logs;
 
 use crate::usb::send;
 use crate::usb::serialize;
@@ -23,6 +26,15 @@ fn should_stop(run: &Arc<AtomicBool>) -> bool {
 }
 
 fn main() {
+    let log_dir = match logs::log_dir() {
+        Ok(log_dir) => log_dir,
+        Err(e) => {
+            panic!("Failed to get project directory: {}",e);
+        }
+    };
+    println!("Logs directory: {}", log_dir.display());
+
+
     let run = Arc::new(AtomicBool::new(true));
     let worker_run = Arc::clone(&run);
 
@@ -41,9 +53,7 @@ fn main() {
     windows::tray::run_event_loop(Arc::clone(&run));
 
     worker_thread.join().unwrap();
-    
 }
-
 
 fn worker(run: Arc<AtomicBool>) {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();

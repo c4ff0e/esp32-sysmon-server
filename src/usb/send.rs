@@ -1,9 +1,6 @@
 use serialport::SerialPort;
 use serialport::{self};
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool},
-};
+use std::sync::{Arc, atomic::AtomicBool};
 
 use crate::should_stop;
 
@@ -12,14 +9,14 @@ pub fn find_port(run: &Arc<AtomicBool>) -> serialport::Result<String> {
         if should_stop(run) {
             return Err(serialport::Error::new(
                 serialport::ErrorKind::NoDevice,
-                "Server stopped by userstopped",
+                "Server stopped by user",
             ));
         }
 
         let ports = serialport::available_ports()?;
 
         for port in ports {
-            if let serialport::SerialPortType::UsbPort(info) = port.port_type        
+            if let serialport::SerialPortType::UsbPort(info) = port.port_type
                 && info.vid == 0x303A
                 && info.pid == 0x3001
             {
