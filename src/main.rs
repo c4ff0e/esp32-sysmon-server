@@ -64,11 +64,16 @@ fn worker(run: Arc<AtomicBool>) {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
-    let mut port = match send::connect(&run) {
-        Ok(port_handle) => port_handle,
-        Err(e) => {
-            info!("ERROR CONNECTING TO PORT: {}", e);
-            return;
+    let mut port = loop {
+        match send::connect(&run) {
+            Ok(port_handle) => break port_handle,
+            Err(e) => {
+                info!("ERROR CONNECTING TO PORT: {}", e);
+
+                if should_stop(&run) {
+                    return;
+                }
+            }
         }
     };
 

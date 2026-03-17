@@ -44,7 +44,7 @@ impl GpuMetrics {
             Some(gpu) => gpu,
             None => {
                 return Self {
-                    smi: None,
+                    smi: Some(smi),
                     gpu_name: "UNSUPPORTED".to_string(),
                     gpu_usage: 0.0,
                     gpu_temp: 0,
