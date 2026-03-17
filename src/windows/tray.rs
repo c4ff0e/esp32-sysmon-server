@@ -1,8 +1,17 @@
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
+
 use image;
 use tray_icon::{
     Icon, Result, TrayIcon, TrayIconBuilder,
     menu::{Menu, MenuItem, PredefinedMenuItem},
 };
+
+use ::windows::Win32::UI::WindowsAndMessaging::{                                 
+    DispatchMessageW, GetMessageW, MSG, TranslateMessage, PostQuitMessage                      
+};  
 
 fn load_icon() -> Icon {
     let bytes = include_bytes!("icon64.ico");
@@ -37,3 +46,24 @@ pub fn build_tray() -> Result<TrayIcon> {
         .with_tooltip("esp32-sysmon")
         .build()
 }
+
+pub fn run_event_loop(run:Arc<AtomicBool>) {                                                                                                                                             
+    unsafe {                                                                         
+        let mut msg = MSG::default();                                                
+        while GetMessageW(&mut msg, None, 0, 0).into() {                             
+            TranslateMessage(&msg);                                                  
+            DispatchMessageW(&msg);                                                  
+            if let Ok(event) = tray_icon::menu::MenuEvent::receiver().try_recv() {   
+                match event.id.as_ref(){
+                    "quit" => {
+                        run.store(false, Ordering::Relaxed);
+                        PostQuitMessage(0);
+                    }
+                    "logs" => { //TODO:
+                    }
+                    _ => {}
+                }
+            }                                                                        
+        }                                                                            
+    }                                                                                
+} 

@@ -2,6 +2,12 @@ mod metrics;
 mod windows;
 mod usb;
 
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool, Ordering},
+};
+use std::thread;
+
 use crate::metrics::cpu_ram;
 use crate::metrics::gpu;
 
@@ -11,11 +17,10 @@ use crate::usb::serialize;
 #[cfg(target_os = "windows")]
 use crate::windows::tray;
 
-use std::sync::{
-    Arc,
-    atomic::{AtomicBool, Ordering},
-};
-use std::thread;
+// lifetime checker
+fn should_stop(run: &Arc<AtomicBool>) -> bool {
+    !run.load(Ordering::Relaxed)
+}
 
 fn main() {
     let run = Arc::new(AtomicBool::new(true));
@@ -31,19 +36,20 @@ fn main() {
         }
     };
 
-    let main_thread = thread::spawn(move || worker(worker_run));
-    main_thread.join().unwrap();
+    let worker_thread = thread::spawn(move || worker(worker_run));
+    #[cfg(target_os = "windows")]
+    windows::tray::run_event_loop(Arc::clone(&run));
+
+    worker_thread.join().unwrap();
+    
 }
-// lifetime checker
-fn should_stop(run: &Arc<AtomicBool>) -> bool {
-    !run.load(Ordering::Relaxed)
-}
+
 
 fn worker(run: Arc<AtomicBool>) {
     let mut cpu_ram_metrics = cpu_ram::CpuRamMetrics::new();
     let mut gpu_metrics = gpu::GpuMetrics::new();
 
-    let mut port = match send::connect() {
+    let mut port = match send::connect(&run) {
         Ok(port_handle) => port_handle,
         Err(e) => {
             eprintln!("ERROR CONNECTING TO PORT: {}", e);
@@ -87,7 +93,7 @@ fn worker(run: Arc<AtomicBool>) {
             Err(_) => {
                 println!("Error while sending data. Trying to reconnect...");
                 //the same code as before main loop. DRY broken :(
-                port = match send::connect() {
+                port = match send::connect(&run) {
                     Ok(port_handle) => port_handle,
                     Err(e) => {
                         eprintln!("ERROR RECONNECTING TO PORT: {}", e);

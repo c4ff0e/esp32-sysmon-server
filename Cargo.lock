@@ -4112,6 +4112,7 @@ dependencies = [
  "sysinfo",
  "systemstat",
  "tray-icon",
+ "windows",
 ]
 
 [[package]]

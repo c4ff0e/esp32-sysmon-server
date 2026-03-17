@@ -1,23 +1,32 @@
 use serialport::SerialPort;
 use serialport::{self};
+use std::sync::{
+    Arc,
+    atomic::{AtomicBool},
+};
 
-pub fn find_port() -> serialport::Result<String> {
+use crate::should_stop;
+
+pub fn find_port(run: &Arc<AtomicBool>) -> serialport::Result<String> {
     loop {
-        let ports = match serialport::available_ports() {
-            Ok(ports) => ports,
-            Err(err) => {
-                return Err(err);
-            }
-        };
+        if should_stop(run) {
+            return Err(serialport::Error::new(
+                serialport::ErrorKind::NoDevice,
+                "Server stopped by userstopped",
+            ));
+        }
+
+        let ports = serialport::available_ports()?;
+
         for port in ports {
-            if let serialport::SerialPortType::UsbPort(info) = port.port_type
+            if let serialport::SerialPortType::UsbPort(info) = port.port_type        
                 && info.vid == 0x303A
                 && info.pid == 0x3001
             {
                 return Ok(port.port_name);
             }
         }
-        println!("No port found. Retrying...");
+        println!("No device found. Retrying...");
         std::thread::sleep(std::time::Duration::from_secs(5));
     }
 }
@@ -30,8 +39,8 @@ pub fn send(port: &mut dyn SerialPort, serialized_data: &[u8]) -> Result<(), std
     port.write_all(serialized_data)
 }
 
-pub fn connect() -> serialport::Result<Box<dyn SerialPort>> {
-    let port_name = match find_port() {
+pub fn connect(run: &Arc<AtomicBool>) -> serialport::Result<Box<dyn SerialPort>> {
+    let port_name = match find_port(run) {
         Ok(name) => name,
         Err(e) => {
             return Err(e);
