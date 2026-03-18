@@ -1,3 +1,6 @@
+#![cfg_attr(target_os = "windows",
+windows_subsystem = "windows")] //turn off console on windows
+
 mod common;
 mod linux;
 mod metrics;

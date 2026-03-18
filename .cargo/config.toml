@@ -1,4 +1,4 @@
 
 [alias]
 bl = "build --release --target x86_64-unknown-linux-gnu"
-bw = "build --release --target x86-64-pc-windows-msvc"
+bw = "build --release --target x86_64-pc-windows-msvc"
