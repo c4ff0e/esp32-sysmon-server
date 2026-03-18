@@ -20,7 +20,7 @@ pub fn get_args(log_path: &PathBuf) {
 }
 
 fn print_logs(log_path: &PathBuf) {
-    let content = fs::read_to_string(&log_path);
+    let content = fs::read_to_string(log_path);
     match content {
         Ok(content) => {
             println!("Log file path:{}\n{}",&log_path.to_str().unwrap(), content);

@@ -51,10 +51,7 @@ impl CpuRamMetrics {
     pub fn refresh(&mut self) {
         self.sys.refresh_cpu_frequency();
         self.update_cpu_usage();
-        self.cpu_temp = match self.sys2.cpu_temp() {
-            Ok(temp) => temp,
-            Err(_) => 0.0,
-        };
+        self.sys2.cpu_temp().unwrap_or(0.0);
 
         self.sys.refresh_memory();
         self.total_ram = self.sys.total_memory();

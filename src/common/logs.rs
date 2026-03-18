@@ -15,8 +15,8 @@ pub fn log_dir() -> Result<PathBuf, std::io::Error> {
     };
     let log_dir = project_dir.data_dir().to_path_buf();
     match create_dir_all(&log_dir) {
-        Ok(_) => return Ok(log_dir),
-        Err(e) => return Err(e),
+        Ok(_) => Ok(log_dir),
+        Err(e) => Err(e),
     }
 }
 pub fn create_logger(log_file: &PathBuf) {
