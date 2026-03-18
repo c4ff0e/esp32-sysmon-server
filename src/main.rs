@@ -1,4 +1,5 @@
 mod common;
+mod linux;
 mod metrics;
 mod usb;
 mod windows;
@@ -21,12 +22,16 @@ use crate::usb::serialize;
 #[cfg(target_os = "windows")]
 use crate::windows::tray;
 
+#[cfg(target_os = "linux")]
+use crate::linux::args;
+
 // lifetime checker
 fn should_stop(run: &Arc<AtomicBool>) -> bool {
     !run.load(Ordering::Relaxed)
 }
 
 fn main() {
+    
     //creating logger
     let log_dir = match logs::log_dir() {
         Ok(log_dir) => log_dir,
@@ -34,7 +39,6 @@ fn main() {
             panic!("Failed to get project directory: {}", e);
         }
     };
-    println!("Logs directory: {}", log_dir.display());
     let log_file = log_dir.join("server.log");
     logs::create_logger(&log_file);
 
@@ -42,13 +46,16 @@ fn main() {
     let run = Arc::new(AtomicBool::new(true));
     let worker_run = Arc::clone(&run);
 
-    // tray icon on windows
+    //linux: accept cli args
+    #[cfg(target_os = "linux")]
+    args::get_args(log_file);
+
+    // windows: tray icon
     #[cfg(target_os = "windows")]
     let _tray = match tray::build_tray() {
         Ok(tray) => tray,
         Err(e) => {
-            eprintln!("tray build error: {}", e);
-            return;
+            panic!("tray build error: {}", e);
         }
     };
 
