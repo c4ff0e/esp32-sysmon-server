@@ -31,7 +31,7 @@ fn should_stop(run: &Arc<AtomicBool>) -> bool {
 }
 
 fn main() {
-    
+
     //creating logger
     let log_dir = match logs::log_dir() {
         Ok(log_dir) => log_dir,
@@ -40,15 +40,18 @@ fn main() {
         }
     };
     let log_file = log_dir.join("server.log");
-    logs::create_logger(&log_file);
-
-    info!("Logger ok");
-    let run = Arc::new(AtomicBool::new(true));
-    let worker_run = Arc::clone(&run);
 
     //linux: accept cli args
     #[cfg(target_os = "linux")]
-    args::get_args(log_file);
+    args::get_args(&log_file);
+    
+    //create logger only after checking arguments
+    //becouse creating logger overwrites current log file by design
+    //and logs arg becomes useless
+    logs::create_logger(&log_file);
+    
+    let run = Arc::new(AtomicBool::new(true));
+    let worker_run = Arc::clone(&run);
 
     // windows: tray icon
     #[cfg(target_os = "windows")]
