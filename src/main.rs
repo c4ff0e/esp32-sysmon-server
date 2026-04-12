@@ -117,9 +117,8 @@ fn worker(run: Arc<AtomicBool>) {
             gpu_memory_total: gpu_metrics.gpu_memory_total,
             gpu_memory_used: gpu_metrics.gpu_memory_used,
             gpu_freq: gpu_metrics.gpu_freq,
-            gpu_supported: gpu_metrics.supported,
+            gpu_supported: gpu_metrics.supported
         };
-
         let serialized_data = serialize::serialize(&metrics_data).unwrap();
         match send::send(&mut *port, &serialized_data) {
             Ok(_) => {}
@@ -140,6 +139,6 @@ fn worker(run: Arc<AtomicBool>) {
                 };
             }
         }
-        std::thread::sleep(std::time::Duration::from_secs_f32(1.5)); // timeout
+        std::thread::sleep(std::time::Duration::from_millis(5)); // timeout
     }
 }
