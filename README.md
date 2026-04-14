@@ -17,13 +17,16 @@ Crates used to get hardware metrics:\
 **[systemstat](https://crates.io/crates/systemstat)**
 
 ## Limitations
-#1 - In my tests, cpu temperature was not collected reliably. I don't think i can do something with this issue.\
+#1 - In my tests, cpu temperature was not collected reliably. I don't think i can do something with this issue.
 
-#2 - I can not implement tray mode for macOS, because i don't have a Mac device, so macOS uses CLI args.\
+#2 - I can not implement tray mode for macOS, because i don't have a Mac device, so macOS uses CLI args.
 
 #3 - Some hardware may not be supported. If so, the display will not show metrics for  
 that hardware, but it will continue to show all supported metrics.
 
+#4 - On my machine (Windows 11, Intel Core i5-12400f) CPU frequency remains constant
+
+#5 - It is possible that other connected ESP32 "steals" port connection
 
 ## Build from source
 ```bash

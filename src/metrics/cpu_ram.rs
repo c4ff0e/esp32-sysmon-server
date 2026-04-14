@@ -100,18 +100,30 @@ impl CpuRamMetrics {
     }
 
     pub fn refresh(&mut self) {
-        self.sys.refresh_cpu_frequency();
-        self.update_cpu_usage();
-        self.cpu_temp = self.sys2.cpu_temp().unwrap_or(0.0);
+        self.update_cpu();
+        
 
         self.sys.refresh_memory();
         self.total_ram = self.sys.total_memory();
         self.used_ram = self.sys.used_memory();
     }
-    fn update_cpu_usage(&mut self) {
+    fn update_cpu(&mut self) {
         self.sys.refresh_cpu_all();
+        self.cpu_temp = self.sys2.cpu_temp().unwrap_or(0.0);
+
+        // mean cpu frequency for all cores
+        let mut sum = 0;
+        let mut count = 0;
+        for cpu in self.sys.cpus(){
+            sum += cpu.frequency();
+            count += 1;
+        }
+        self.cpu_frequency = (sum / count) as u32;
+        // to update cpu usage
         std::thread::sleep(sysinfo::MINIMUM_CPU_UPDATE_INTERVAL);
         self.sys.refresh_cpu_all();
+
+        // mean cpu usage for all cores
         let mut sum = 0.0;
         let mut count = 0;
         for cpu in self.sys.cpus() {
@@ -120,4 +132,5 @@ impl CpuRamMetrics {
         }
         self.cpu_usage = sum / count as f32;
     }
+
 }
