@@ -7,14 +7,23 @@ Part of esp32-sysmon-* project; desktop server to send the data to ESP32 over US
 
 **Windows**: 100% compatible, tray mode
 
-**macOS**: Unknown
+**macOS**: Should work, untested
 
-## Hardware compatibility
-**DEPENDS ON CRATES**
-Crates used to get hardware metrics:
-**[all-smi](https://crates.io/crates/all-smi)**
-**[sysinfo](https://crates.io/crates/sysinfo)**
+## Hardware support
+**DEPENDS ON CRATES**\
+Crates used to get hardware metrics:\
+**[all-smi](https://crates.io/crates/all-smi)**\
+**[sysinfo](https://crates.io/crates/sysinfo)**\
 **[systemstat](https://crates.io/crates/systemstat)**
+
+## Limitations
+#1 - In my tests, cpu temperature was not collected reliably. I don't think i can do something with this issue.\
+
+#2 - I can not implement tray mode for macOS, because i don't have a Mac device, so macOS uses CLI args.\
+
+#3 - Some hardware may not be supported. If so, the display will not show metrics for  
+that hardware, but it will continue to show all supported metrics.
+
 
 ## Build from source
 ```bash
@@ -22,6 +31,7 @@ git clone https://github.com/c4ff0e/esp32-sysmon-server
 cd esp32-sysmon-server 
 cargo bl # build linux binary
 cargo bw # build windows binary
+# no cargo alias for macos
 ```
 ## Run (Release)
 
@@ -33,7 +43,7 @@ Download binary from **[latest release](https://github.com/c4ff0e/esp32-sysmon-s
 ./esp32-sysmon-server logs # prints logs and path to log file
 ```
 
-**Add to PATH**
+**Add to PATH**\
 You can put the binary wherever you like, for example: ~/.local/bin;
 
 ```bash
@@ -82,11 +92,18 @@ systemctl --user status esp32-sysmon-server.service
 ### Windows
 Launch the esp32-sysmon-server.exe binary from **[latest release](https://github.com/c4ff0e/esp32-sysmon-server/releases/latest)**. After launch, a tray icon will appear in the system tray, which can be used to stop the server and open logs. 
 
-**Autorun**: Put the shortcut to the .exe inside the startup folder:
+**Autorun**\
+Put the shortcut to the .exe inside the startup folder:
 %APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup
 
 **Logs are overwritten on server startup.**
 
+### macOS
+[Build from source](#build-from-source)
+```bash
+./esp32-sysmon-server run # start
+./esp32-sysmon-server logs # prints logs and path to log file
+```
 
 ## Troubleshooting
 

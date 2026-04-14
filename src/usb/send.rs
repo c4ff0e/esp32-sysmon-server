@@ -20,6 +20,9 @@ pub fn find_port(run: &Arc<AtomicBool>) -> serialport::Result<String> {
             if let serialport::SerialPortType::UsbPort(info) = port.port_type
                 && info.vid == 0x303A
                 && info.pid == 0x3001
+                && info.manufacturer.as_deref() == Some("github.com/c4ff0e/esp32-sysmon-display")
+                && info.product.as_deref() == Some("System resource monitor")
+                && info.serial_number.as_deref() == Some("6767")
             {
                 return Ok(port.port_name);
             }

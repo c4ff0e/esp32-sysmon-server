@@ -1,6 +1,6 @@
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use std::{env, fs, path::PathBuf};
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn get_args(log_path: &PathBuf) {
     let args: Vec<String> = env::args().collect();
 
@@ -19,7 +19,7 @@ pub fn get_args(log_path: &PathBuf) {
         }
     };
 }
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 fn print_logs(log_path: &PathBuf) {
     let content = fs::read_to_string(log_path);
     match content {

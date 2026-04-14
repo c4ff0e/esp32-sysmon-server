@@ -24,7 +24,58 @@ impl CpuRamMetrics {
                 .with_memory(MemoryRefreshKind::nothing().with_ram()),
         );
         let sys2 = System2::new();
-        let cpu_name = sys.cpus()[0].brand().to_string();
+        let mut cpu_name = sys.cpus()[0].brand().to_string();
+
+        // format cpu name so it is usable
+        // directly supports only intel/amd
+        // apple silicon should not require formatting
+        if cpu_name.contains("Intel"){
+            //cut off everything before processor name
+            cpu_name = cpu_name
+            .split_once("Intel")
+            .unwrap()
+            .1
+            .to_string();
+            
+            // cut off everything after @
+            cpu_name = cpu_name
+            .split("@")
+            .next()
+            .unwrap() // should not panic
+            .replace("(TM)", "")
+            .replace("(R)", "")
+            .replace("CPU", "")
+            .split_whitespace()
+            .collect::<Vec<_>>()
+            .join(" ")
+            .to_string();
+        }
+        else if cpu_name.contains("AMD"){
+            // cut off everyhting before processor name
+            cpu_name = cpu_name
+            .split_once("AMD")
+            .unwrap()
+            .1
+            .to_string();
+
+            cpu_name = cpu_name
+            .replace("Processor", "")
+            .replace("with Radeon Graphics", "")
+            .replace("with Radeon Vega Graphics", "")
+            .replace("w/ Radeon Vega Graphics", "")
+            .replace("(tm)", "")
+            .replace("(TM)", "")
+            .split_whitespace()
+            .filter(|part| !part.ends_with("-Core") && !part.ends_with("-Cores"))
+            .collect::<Vec<_>>()
+            .join(" ")
+            .to_string();
+        }
+        // if cpu name is too long - shorten it
+        if cpu_name.chars().count() > 19 {
+            cpu_name = cpu_name.chars().take(16).collect();
+            cpu_name.push_str("...");
+        }
         let cpu_frequency = sys.cpus()[0].frequency() as u32;
         let cpu_temp = match sys2.cpu_temp() {
             Ok(temp) => temp,

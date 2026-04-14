@@ -25,7 +25,7 @@ use crate::usb::serialize;
 #[cfg(target_os = "windows")]
 use crate::windows::tray;
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 use crate::linux::args;
 
 // lifetime checker
@@ -45,7 +45,7 @@ fn main() {
     let log_file = log_dir.join("server.log");
 
     //linux: accept cli args
-    #[cfg(target_os = "linux")]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     args::get_args(&log_file);
     
     //create logger only after checking arguments
@@ -139,6 +139,6 @@ fn worker(run: Arc<AtomicBool>) {
                 };
             }
         }
-        std::thread::sleep(std::time::Duration::from_millis(5)); // timeout
+        std::thread::sleep(std::time::Duration::from_millis(10)); // timeout
     }
 }
