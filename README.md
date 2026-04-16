@@ -26,7 +26,7 @@ that hardware, but it will continue to show all supported metrics.
 
 #4 - On my machine (Windows 11, Intel Core i5-12400f) CPU frequency remains constant. It is possible that on other machines CPU frequency remains constant
 
-#5 - It is possible that other connected ESP32 "steals" port connection
+#5 - It is possible that other connected ESP32 "steals" port connection. This happens becouse server is looking for **any** ESP32. I tried fixing it, but the fix was brittle and not cross-platform.
 
 ## Build from source
 ```bash
@@ -109,7 +109,7 @@ Put the shortcut to the .exe inside the startup folder:
 ```
 
 ## Troubleshooting
-
+### Desktop
 *Permission denied for serial port **[Serial port name]**. Check device access permissions.*
 
 **Fix**:
@@ -117,3 +117,11 @@ Put the shortcut to the .exe inside the startup folder:
 sudo usermod -aG uucp "$(whoami)"
 ```
 After running this command, log out and log back in, or reboot.
+
+### Display
+`Your [something] is unsupported`\
+Server has reported that something from your desktop hardware is not supported by it. Display will continue to work, but unsupported hardware metrics will not be shown.
+
+`No data`\
+`Check server`\
+Desktop server didn't send any metrics/metrics are stale. Check whether it crashed/exited/lost connection or using the wrong port.

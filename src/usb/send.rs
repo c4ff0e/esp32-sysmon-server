@@ -25,7 +25,7 @@ pub fn find_port(run: &Arc<AtomicBool>) -> serialport::Result<String> {
             }
         }
         info!("No device found. Retrying...");
-        std::thread::sleep(std::time::Duration::from_millis(5));
+        std::thread::sleep(std::time::Duration::from_millis(10));
     }
 }
 

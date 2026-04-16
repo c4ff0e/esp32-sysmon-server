@@ -100,7 +100,6 @@ fn worker(run: Arc<AtomicBool>) {
 
         // there used to be a crash if there is no metrics available;
         // however, it is better to display this information on a screen then sliently(?) stop working
-
         let metrics_data = serialize::MetricsData {
             cpu_usage: cpu_ram_metrics.cpu_usage,
             cpu_name: cpu_ram_metrics.cpu_name.clone(),
@@ -139,6 +138,6 @@ fn worker(run: Arc<AtomicBool>) {
                 };
             }
         }
-        std::thread::sleep(std::time::Duration::from_millis(10)); // timeout
+        std::thread::sleep(std::time::Duration::from_millis(20)); // timeout
     }
 }
