@@ -1,4 +1,4 @@
-name: on-push
+name: Linux build
 on:
   push:
     branches: [ "master" ]
@@ -14,5 +14,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Install linux dependecies
+        run: sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config
+
       - run: cargo test
+
       - run: cargo build --release
