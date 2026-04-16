@@ -1,0 +1,43 @@
+on:
+    push:
+        tags:
+            - "v*"
+name: release
+
+permissions:
+    contents: write
+
+jobs:
+    linux:
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+            - uses: Swatinem/rust-cache@v2
+
+            - name: Install linux dependencies
+              run: sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config protobuf-compiler libdrm-dev
+
+            - run: cargo test
+
+            - run: cargo build --release
+
+            - name: Upload Linux binary
+              uses: softprops/action-gh-release@v2
+              with: 
+                files: target/release/esp32-sysmon-server
+
+    windows:
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+            - uses: dtolnay/rust-toolchain@stable
+            - uses: Swatinem/rust-cache@v2
+            
+            - run: cargo test
+            - run: cargo build --release 
+
+            - name: Upload Windows Binary
+              uses: softprops/action-gh-release@v2
+              with: 
+                files: target/release/esp32-sysmon-server.exe

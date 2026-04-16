@@ -1,6 +1,9 @@
 # ESP32 System Monitor Server
-Part of esp32-sysmon-* project; desktop server to send the data to ESP32 over USB. 
-[ESP32 part of this project](https://github.com/c4ff0e/esp32-sysmon-display)
+[![Linux build](https://github.com/c4ff0e/esp32-sysmon-server/actions/workflows/linux.yml/badge.svg)](https://github.com/c4ff0e/esp32-sysmon-server/actions/workflows/linux.yml)
+[![Windows build](https://github.com/c4ff0e/esp32-sysmon-server/actions/workflows/windows.yml/badge.svg)](https://github.com/c4ff0e/esp32-sysmon-server/actions/workflows/windows.yml)
+
+Part of esp32-sysmon-* project; desktop server to send the data to ESP32 over USB.\
+[ESP32 part of this project](https://github.com/c4ff0e/esp32-sysmon-display) - **required to actually see metrics**
 
 ## OS support
 **Linux**: 100% compatible, CLI mode
