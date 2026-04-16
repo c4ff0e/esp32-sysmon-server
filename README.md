@@ -35,6 +35,9 @@ cd esp32-sysmon-server
 cargo bl # build linux binary
 cargo bw # build windows binary
 # no cargo alias for macos
+
+# if you are using linux:
+sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config protobuf-compile # example for ubuntu
 ```
 ## Run (Release)
 
