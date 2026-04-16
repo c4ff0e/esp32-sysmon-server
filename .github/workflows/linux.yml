@@ -17,7 +17,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
 
       - name: Install linux dependecies
-        run: sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config protobuf-compiler
+        run: sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config protobuf-compiler libdrm-dev
 
       - run: cargo test
 

@@ -37,7 +37,7 @@ cargo bw # build windows binary
 # no cargo alias for macos
 
 # if you are using linux:
-sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config protobuf-compile # example for ubuntu
+sudo apt-get update && sudo apt-get install -y libudev-dev pkg-config protobuf-compile libdrm-dev # example for ubuntu
 ```
 ## Run (Release)
 
