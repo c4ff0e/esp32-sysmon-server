@@ -63,9 +63,10 @@ pub fn run_event_loop(run: Arc<AtomicBool>, log_file: &PathBuf) {
                         run.store(false, Ordering::Relaxed);
                         PostQuitMessage(0);
                     }
+                    #[allow(clippy::zombie_processes, reason = "Only opens the log file and does not need to wait for Notepad to close")]
                     "logs" => {
                         Command::new("notepad")
-                            .arg(&log_file)
+                            .arg(log_file)
                             .spawn()
                             .expect("Failed to open log file");
                     }

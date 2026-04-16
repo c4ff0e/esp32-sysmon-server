@@ -1,5 +1,4 @@
-#![cfg_attr(target_os = "windows",
-windows_subsystem = "windows")] //turn off console on windows
+#![cfg_attr(all(target_os = "windows", not(test)), windows_subsystem = "windows")] //turn off console on windows release/dev build
 
 mod common;
 mod linux;
@@ -139,5 +138,25 @@ fn worker(run: Arc<AtomicBool>) {
             }
         }
         std::thread::sleep(std::time::Duration::from_millis(20)); // timeout
+    }
+}
+
+#[cfg(test)]
+// this is ridiculous but im bored
+mod tests{
+    use super::*;
+    use std::sync::{
+        Arc,
+        atomic::AtomicBool
+    };
+    #[test]
+    fn will_not_stop(){
+        let run = Arc::new(AtomicBool::new(true));
+        assert_eq!(should_stop(&run), false);
+    }
+    #[test]
+    fn will_stop(){
+        let run = Arc::new(AtomicBool::new(false));
+        assert_eq!(should_stop(&run), true);
     }
 }
